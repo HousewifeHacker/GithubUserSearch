@@ -56,7 +56,7 @@ const useStyles = makeStyles(theme => ({
 export default function TopNav(props) {
   const classes = useStyles();
   return (
-    <AppBar position="static" className={props.className}>
+    <AppBar position="static"> 
       <Toolbar>
         <Typography variant="h6" color="inherit" noWrap>
           Github User Search
@@ -71,6 +71,7 @@ export default function TopNav(props) {
                root: classes.inputRoot,
                input: classes.inputInput,
              }}
+             onChange={e => props.handleInput(e.target.value)}
              inputProps={{ 'aria-label': 'search' }}
           />
         </div>
