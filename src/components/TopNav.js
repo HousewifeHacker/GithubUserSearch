@@ -55,6 +55,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function TopNav(props) {
   const classes = useStyles();
+
   return (
     <AppBar position="static"> 
       <Toolbar>
