@@ -20,13 +20,12 @@ const useStyles = makeStyles(theme => ({
     width: 300,
     height: 300,
     margin: "auto",
-    border: '2px solid grey',
-    boxShadow: theme.shadows[1],
+    padding: 20,
   }
 }));
 
 
-export default function DetailsModal(props) {
+function DetailsModal(props) {
   const classes = useStyles();
 
   const [userInfo, setUserInfo] = useState(null);
@@ -50,13 +49,13 @@ export default function DetailsModal(props) {
   if (!userInfo) {
     return (<div>Waiting</div>);
   }
-  
+
   return (
     <Paper className={classes.modal}>
       <Typography variant="h4" align="center">
           {userInfo.login}
       </Typography>
-          <Avatar src={userInfo.avatar_url} className={classes.avatar} />
+      <Avatar src={userInfo.avatar_url} className={classes.avatar} />
       <div style={{padding:20}}>
         Name: {userInfo.name} <br />
         Location: {userInfo.location} <br />
@@ -75,3 +74,10 @@ export default function DetailsModal(props) {
     </Paper>
   )
 };
+
+const FinalModal = React.forwardRef((props, ref) => {
+    return <DetailsModal {...props} forwardedRef={ref} />;
+});
+
+
+export default FinalModal;

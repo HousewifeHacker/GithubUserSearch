@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {
   AppBar,
   Button,
@@ -10,6 +10,7 @@ import {
   Search as SearchIcon
 } from '@material-ui/icons';
 import { fade, makeStyles } from '@material-ui/core/styles';
+import debounce from 'lodash.debounce';
 
 // following example in Material UI https://material-ui.com/components/app-bar/
 const useStyles = makeStyles(theme => ({
@@ -53,9 +54,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+
 export default function TopNav(props) {
   const classes = useStyles();
-
+  const delayedSearch = useRef(
+      debounce(value => props.handleInput(value), 700)
+  ).current;
   return (
     <AppBar position="static"> 
       <Toolbar>
@@ -72,7 +76,7 @@ export default function TopNav(props) {
                root: classes.inputRoot,
                input: classes.inputInput,
              }}
-             onChange={e => props.handleInput(e.target.value)}
+             onChange={e => delayedSearch(e.target.value)}
              inputProps={{ 'aria-label': 'search' }}
           />
         </div>
