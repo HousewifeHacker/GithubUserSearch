@@ -23,13 +23,13 @@ export default function Result(props) {
 
   return (
     <Grid item xs={12} sm={5} md={3}>
-      <Paper>
+      <Paper align="center" style={{padding:20}}>
         <Typography variant="h5" align="center">
           {props.login}
         </Typography>
         <Avatar src={props.avatar} className={props.bigAvatar} />
-        <Button onClick={handleOpen}>
-          Click me
+        <Button onClick={handleOpen} variant="contained">
+          More Info
         </Button>
         <Modal
           aria-labelledby="{props.login} details"

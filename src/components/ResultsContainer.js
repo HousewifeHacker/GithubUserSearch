@@ -3,9 +3,14 @@ import axios from 'axios';
 //import debounce from 'lodash.debounce';
 import {
   makeStyles,
+  Button,
   Container,
   Grid,
 } from '@material-ui/core';
+import {
+  ArrowBackIos as BackIcon,
+  ArrowForwardIos as ForwardIcon,
+} from '@material-ui/icons';
 
 import Result from './Result';
 
@@ -26,12 +31,15 @@ const testList = [
   }
 ]
 
+const PAGE_LIMIT = 20;
+
 export default function ResultsContainer(props) {
   const classes = useStyles();
   const [results, setResults] = useState(testList); 
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
-      props.searchText && fetchData();
+    props.searchText && fetchData();
   });
 
   async function fetchData() {
@@ -45,21 +53,44 @@ export default function ResultsContainer(props) {
     }
   }
 
-  const items = results.map((item) => {
+  const renderItems = () => {
+    let paginatedResults = results.slice(currentPage*PAGE_LIMIT, (currentPage+1)*PAGE_LIMIT);
+    console.log(paginatedResults);
+    return paginatedResults.map((item) => {
+      return (
+        <Result
+          avatar={item.avatar_url}
+          bigAvatar={classes.bigAvatar}
+          login={item.login}
+          url={item.url}
+          key={item.id} />
+      )
+    });
+  };
+
+  const renderPagination = () => {
+    let totalCount = results.length;
+    let maxPage = Math.ceil(totalCount/PAGE_LIMIT)-1;
+    let showStr = `Showing ${currentPage*PAGE_LIMIT+1} - ${Math.min((currentPage+1)*PAGE_LIMIT, totalCount)} of ${totalCount}`;
     return (
-      <Result
-        avatar={item.avatar_url}
-        bigAvatar={classes.bigAvatar}
-        login={item.login}
-        url={item.url}
-        key={item.id} />
+      <div align="right">
+        {showStr}
+        <Button onClick={() => setCurrentPage(Math.max(0, currentPage-1))}>
+          <BackIcon />
+        </Button>
+        <Button onClick={() => setCurrentPage(Math.min(maxPage, currentPage+1))}>
+          <ForwardIcon />
+        </Button>
+      </div>
     )
-  });
+  };
+  
   return (
     <Container style={{padding: 20}}>
       <Grid container justify="center" alignItems="center" spacing={3}>
-        {items}
+        {renderItems()}
       </Grid>
+      {renderPagination()}
     </Container>
   );
 };
