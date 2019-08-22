@@ -38,8 +38,34 @@ function DetailsModal(props) {
 
   async function fetchData() {
     try {
-      const res = await axios.get(props.api);
-      setUserInfo(res.data);
+      const apiBaseURL = "https://api.github.com/graphql";
+      const body = {
+        query: `
+          query {
+            user(login:"${props.login}") {
+              location
+              name
+              followers {
+                totalCount
+              }
+              repositories {
+                totalCount
+              }
+              url
+              avatarUrl
+            }
+          }
+        `
+      };
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `bearer ${process.env.REACT_APP_GITHUB_TOKEN}`
+        }
+      };
+      const res = await axios.post(apiBaseURL, body, config);
+      setUserInfo(res.data.data.user);
     } catch (err) {
       //setErrors(err);
       console.log(err);
@@ -53,18 +79,18 @@ function DetailsModal(props) {
   return (
     <Paper className={classes.modal}>
       <Typography variant="h4" align="center">
-          {userInfo.login}
+          {props.login}
       </Typography>
-      <Avatar src={userInfo.avatar_url} className={classes.avatar} />
+      <Avatar src={userInfo.avatarUrl} className={classes.avatar} />
       <div style={{padding:20}}>
         Name: {userInfo.name} <br />
         Location: {userInfo.location} <br />
-        Followers: {userInfo.followers} <br />
-        Repos: {userInfo.public_repos} <br />
+        Followers: {userInfo.followers.totalCount} <br />
+        Repos: {userInfo.repositories.totalCount} <br />
       </div>
       <div align="center">
         <Button
-          href={userInfo.html_url}
+          href={userInfo.url}
           target="_blank"
           variant="contained"
           color="primary">

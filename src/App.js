@@ -8,6 +8,8 @@ import TopNav from './components/TopNav';
 import ResultsContainer from './components/ResultsContainer';
 import axios from 'axios';
 
+const TOKEN = process.env.REACT_APP_GITHUB_TOKEN
+
 export default function App() {
   const [results, setResults] = useState([]);
   const [searchText, setSearchText] = useState(null);
@@ -18,9 +20,34 @@ export default function App() {
       setSearchText(searchText);
       setIsLoading(true);
       try {
-        const apiBaseURL = "https://api.github.com/search/users?per_page=100&q=";
-        const res = await axios.get(`${apiBaseURL}${searchText}`);
-        setResults(res.data.items);
+        const apiBaseURL = "https://api.github.com/graphql";
+        const body = {
+          query: `
+            query searchUsers {
+              search(type: USER, first: 100, query: "${searchText}") {
+                userCount
+                nodes {
+                  ... on User {
+                    avatarUrl
+                    id
+                    login
+                  }
+                }
+              }
+            }
+          `
+        };
+
+        const config = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `bearer ${TOKEN}`
+          },
+        };
+        const res = await axios.post(apiBaseURL, body, config);
+        setResults(res.data.data.search.nodes);
+
         setIsLoading(false);
       } catch(err) {
         console.log(err);

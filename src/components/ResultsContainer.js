@@ -32,10 +32,10 @@ export default function ResultsContainer(props) {
     return paginatedResults.map((item) => {
       return (
         <Result
-          avatar={item.avatar_url}
+          avatar={item.avatarUrl}
           bigAvatar={classes.bigAvatar}
           login={item.login}
-          url={item.url}
+          userId={item.id}
           key={item.id} />
       )
     });

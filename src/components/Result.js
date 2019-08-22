@@ -36,7 +36,7 @@ export default function Result(props) {
           open={open}
           onClose={handleClose}
         >
-          <DetailsModal api={props.url} />
+          <DetailsModal login={props.login} />
         </Modal>
       </Paper>
     </Grid>
