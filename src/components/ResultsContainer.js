@@ -29,7 +29,7 @@ class ResultsContainer extends Component {
   initialState = {
     totalUsers: null,
     currentPage: 0,
-    results: [],
+    results: {},
     isLoading: false,
     pageInfo: null,
   };
@@ -47,7 +47,7 @@ class ResultsContainer extends Component {
     }
   }
 
-  fetchData = async (paginationStr=`first: ${PAGE_LIMIT}`) => {
+  fetchData = async (paginationStr=`first: ${PAGE_LIMIT}`, newPage=0) => {
     this.setState({isLoading: true});
     let searchText = this.props.searchText;
     try {
@@ -83,11 +83,12 @@ class ResultsContainer extends Component {
         },
       };
       const res = await axios.post(apiBaseURL, body, config);
-      console.log(res);
       let data = res.data.data.search;
+      let results = Object.assign(this.state.results);
+      results[newPage] = data.nodes;
       this.setState({
         totalUsers: data.userCount,
-        results: data.nodes,
+        results: results,
         pageInfo: data.pageInfo,
         isLoading: false,
       });
@@ -98,7 +99,8 @@ class ResultsContainer extends Component {
   };
 
   renderItems = () => {
-    return this.state.results.map((item) => {
+    let paginatedResults = this.state.results[this.state.currentPage] || [];
+    return paginatedResults.map((item) => {
       return (
         <Result
           avatar={item.avatarUrl}
@@ -110,22 +112,31 @@ class ResultsContainer extends Component {
   };
 
   increaseCurrentPage = () => {
-    if (!this.state.pageInfo.hasNextPage) { return }
-    this.setState((state) => ({
-      currentPage: state.currentPage + 1
-    }));
-    let paginationStr = `first: ${PAGE_LIMIT} after: ${this.state.pageInfo.endCursor}`;
-    this.fetchData(paginationStr);
-  }
-  
+    let newPage = this.state.currentPage + 1;
+    // increase current page if we have the data already
+    // if we dont have the data, fetch if there is a next page
+    if (this.state.results[newPage]) {
+      this.setState((state) => ({
+        currentPage: newPage,
+      }));
+    } else {
+      if (!this.state.pageInfo.hasNextPage) { return }
+      let paginationStr = `first: ${PAGE_LIMIT} after: ${this.state.pageInfo.endCursor}`;
+      this.fetchData(paginationStr, newPage);
+      this.setState((state) => ({
+        currentPage: newPage,
+      }));
+    }
+  };
+
   decreaseCurrentPage = () => {
-    if (!this.state.pageInfo.hasPreviousPage) { return }
+    // no fetch, already have the data in results
+    if (this.state.currentPage <= 0) { return }
+    let newPage = this.state.currentPage - 1;
     this.setState((state) => ({
-      currentPage: state.currentPage - 1
+      currentPage: newPage,
     }));
-    let paginationStr = `last: ${PAGE_LIMIT} before: ${this.state.pageInfo.startCursor}`;
-    this.fetchData(paginationStr);
-  }
+  };
 
   renderPagination = () => {
     let totalCount = this.state.totalUsers;
@@ -150,7 +161,7 @@ class ResultsContainer extends Component {
   render() {
     if (!this.props.searchText.length) { return <h2>Search for Github Users</h2> }
     if (this.state.isLoading) { return <h2>Loading ...</h2> }
-    if (!this.state.results.length) { return <h2>No results</h2> }
+    if (!Object.keys(this.state.results).length) { return <h2>No results</h2> }
     return (
       <Container style={{padding: 20}}>
         <Fragment>
