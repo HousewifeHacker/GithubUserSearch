@@ -39,10 +39,9 @@ class ResultsContainer extends Component {
   // changed searchTerm
   componentDidUpdate(prevProps) {
     if (this.props.searchText !== prevProps.searchText){
+      this.setState(this.initialState);
       if (this.props.searchText.length) {
         this.fetchData();
-      } else {
-        this.setState(this.initialState);
       }
     }
   }
