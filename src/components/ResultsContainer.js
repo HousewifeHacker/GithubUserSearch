@@ -120,7 +120,7 @@ class ResultsContainer extends Component {
       }));
     } else {
       if (!this.state.pageInfo.hasNextPage) { return }
-      let paginationStr = `first: ${PAGE_LIMIT} after: ${this.state.pageInfo.endCursor}`;
+      let paginationStr = `first: ${PAGE_LIMIT} after: "${this.state.pageInfo.endCursor}"`;
       this.fetchData(paginationStr, newPage);
       this.setState((state) => ({
         currentPage: newPage,
